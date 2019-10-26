@@ -23,7 +23,7 @@ class TusUploadResource
 
         // TEST VERSION - need to find out how to have one version because
         // using storage_path() inside config.php points to vendor/orchestra/... during test
-        $this->fileName = storage_path(config('tus.upload_path')) . $this->key;
+        $this->fileName = storage_path(config('tus.upload_path')) . "/" . $this->key;
 
         Cache::add(self::PREFIX . $this->key, $this);
     }
