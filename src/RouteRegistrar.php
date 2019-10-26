@@ -32,5 +32,7 @@ final class RouteRegistrar
     public function all()
     {
         $this->router->options('/', 'Controller@options');
+        $this->router->get('/{key}', 'Controller@head');
+        $this->router->get('/', 'Controller@head');
     }
 }
