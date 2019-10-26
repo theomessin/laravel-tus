@@ -31,6 +31,6 @@ final class RouteRegistrar
      */
     public function all()
     {
-        //
+        $this->router->options('/', 'Controller@options');
     }
 }
