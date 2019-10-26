@@ -1,0 +1,27 @@
+name: styling
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: phpcs (php-7.3)
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@master
+
+    - name: Set up environment
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: '7.3'
+        extension-csv: mbstring
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Check code style
+      run: ./vendor/bin/phpcs
