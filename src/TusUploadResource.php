@@ -17,7 +17,13 @@ class TusUploadResource
     {
         $this->key = $key ?? Str::uuid()->toString();
         $this->length = $length;
-        $this->fileName = storage_path('framework/testing/disks/local/') . $this->key;
+
+        //PRODUCTION VERSION
+        $this->fileName = config('tus.upload_path') . $this->key;
+
+        // TEST VERSION - need to find out how to have one version because above points under vendor/orchestra
+        $this->fileName = storage_path()  . '/' . config('tus.upload_path') . $this->key;
+
         Cache::add(self::PREFIX . $this->key, $this);
     }
 
