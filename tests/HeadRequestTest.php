@@ -32,7 +32,7 @@ class HeadRequestTest extends TestCase
 
         $response->assertHeader('Cache-Control');
 
-        $this->assertTrue(strpos( $response->headers->get('Cache-Control') , 'no-store') !== false );
+        $this->assertTrue(strpos($response->headers->get('Cache-Control'), 'no-store') !== false);
     }
 
     /** @test */

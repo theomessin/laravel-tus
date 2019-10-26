@@ -33,6 +33,6 @@ final class RouteRegistrar
     {
         $this->router->options('/', 'Controller@options');
         $this->router->get('/{key}', 'Controller@head');
-        $this->router->get('/', 'Controller@head');
+
     }
 }
