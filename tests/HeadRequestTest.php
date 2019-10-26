@@ -24,6 +24,7 @@ class HeadRequestTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /** @test */
     public function valid_request_returns_cache_control_header()
     {
         $resource = new TusUploadResource();
