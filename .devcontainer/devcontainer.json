@@ -1,20 +1,21 @@
 {
-	"name": "PHP 7",
-	"dockerFile": "Dockerfile",
-	"runArgs": [ "-u", "vscode" ],
-
+    "name": "PHP 7",
+    "dockerFile": "Dockerfile",
+    "runArgs": [
+        "-u",
+        "vscode"
+    ],
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
         "phpSniffer.executablesFolder": "./vendor/bin/",
         "phpSniffer.run": "onSave"
-	},
-
+    },
     "extensions": [
         // Generic coding extensions.
-		"MS-vsliveshare.vsliveshare-pack",
+        "MS-vsliveshare.vsliveshare-pack",
         "EditorConfig.EditorConfig",
         // PHP coding tools.
-		"bmewburn.vscode-intelephense-client",
+        "bmewburn.vscode-intelephense-client",
         // PHP styling tools.
         "wongjn.php-sniffer"
     ]
