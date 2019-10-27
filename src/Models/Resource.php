@@ -8,7 +8,11 @@ use Theomessin\Tus\Models\Traits\HasMetadata;
 
 abstract class Resource
 {
-    use HasMetadata, HasMagicMetadata, HasCacheableMetadata;
+    use HasMagicMetadata, HasCacheableMetadata {
+        // This here is needed to fix the trait collision in php-7.2.
+        // @todo probably fix by refactoring the traits structure instead.
+        HasCacheableMetadata::enforceRequiredMetadata insteadof HasMagicMetadata;
+    }
 
     /**
      *
