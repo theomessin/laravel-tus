@@ -4,10 +4,11 @@ namespace Theomessin\Tus\Models;
 
 use Theomessin\Tus\Models\Traits\HasCacheableMetadata;
 use Theomessin\Tus\Models\Traits\HasMagicMetadata;
+use Theomessin\Tus\Models\Traits\HasMetadata;
 
 abstract class Resource
 {
-    use HasCacheableMetadata, HasMagicMetadata;
+    use HasMetadata, HasMagicMetadata, HasCacheableMetadata;
 
     /**
      *
