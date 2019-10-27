@@ -31,23 +31,23 @@ class HttpGetTest extends TestCase
     }
 
     /** @test */
-    // @todo clean up and add testing A/A/A comments.
     public function valid_request_returns_cache_control_header()
     {
+        // Arrange: create test Upload.
         $resource = Upload::create('my-upload-key', [
             'offset' => 123,
             'length' => 321,
         ]);
 
+        // Act: get request for test Upload.
         $response = $this->get('/tus/my-upload-key');
 
         // Assert: response code is 200.
         $response->assertSuccessful();
 
-        $response->assertHeader('Cache-Control');
-
-        // @PMessinezis the following line makes no sense.. Please explain.
-        $this->assertTrue(strpos($response->headers->get('Cache-Control'), 'no-store') !== false);
+        // Assert: Cache-Control header returns no-store
+        $CacheControlHeader  = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-store', $CacheControlHeader);
     }
 
     /** @test */
