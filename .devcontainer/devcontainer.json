@@ -5,9 +5,8 @@
 
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
-        "phpcs.enable": true,
-        "phpcs.autoConfigSearch": true,
-        "phpcs.ignorePatterns": ["*/vendor/*"]
+        "phpSniffer.executablesFolder": "./vendor/bin/",
+        "phpSniffer.run": "onSave"
 	},
 
     "extensions": [
@@ -17,6 +16,6 @@
         // PHP coding tools.
 		"bmewburn.vscode-intelephense-client",
         // PHP styling tools.
-        "ikappas.phpcs"
+        "wongjn.php-sniffer"
     ]
 }

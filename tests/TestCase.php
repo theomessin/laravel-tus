@@ -8,11 +8,11 @@ class TestCase extends BaseTestCase
 {
     protected function getPackageProviders($app)
     {
-        return ['Theomessin\Tus\TusServiceProvider'];
+        return ['Theomessin\Tus\ServiceProvider'];
     }
 
     protected function getEnvironmentSetUp($app)
     {
-        $app->useStoragePath(realpath(__DIR__.'/storage'));
+        $app->useStoragePath(realpath(__DIR__.'../storage'));
     }
 }

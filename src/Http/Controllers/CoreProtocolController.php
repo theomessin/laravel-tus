@@ -2,10 +2,10 @@
 
 namespace Theomessin\Tus\Http\Controllers;
 
-use Illuminate\Routing\Controller as LaravelController;
-use Theomessin\Tus\TusUploadResource;
+use Illuminate\Routing\Controller;
+use Theomessin\Tus\Models\Upload;
 
-class Controller extends LaravelController
+class CoreProtocolController extends Controller
 {
     public function options()
     {
@@ -17,23 +17,17 @@ class Controller extends LaravelController
         return response(null, 204)->withHeaders($headers);
     }
 
-    public function head($key)
+    public function get(Upload $upload)
     {
-        $resource = TusUploadResource::get($key);
-
-        if (!$resource) {
-            return response(null, 404);
-        }
-
         $headers = [
             'Tus-Resumable' => '1.0.0',
             'Tus-Version' => '1.0.0',
-            'Upload-Offset' => $resource->offset,
+            'Upload-Offset' => $upload->offset,
             'Cache-Control' => 'no-store',
         ];
 
-        if ($resource->length > 0) {
-            $headers += ['Upload-Length' => $resource->length] ;
+        if ($upload->length > 0) {
+            $headers += ['Upload-Length' => $upload->length];
         }
 
         return response(null, 200)->withHeaders($headers);
