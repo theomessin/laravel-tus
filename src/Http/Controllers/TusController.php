@@ -10,13 +10,11 @@ class TusController extends Controller
 {
     public function options()
     {
-        $a = Upload::supportedHashAlgorithms();
-        $hashAlgorithms = 'sha1';
         $headers = [
             'Tus-Resumable' => '1.0.0',
             'Tus-Version' => '1.0.0',
             'Tus-Extension' => 'creation,checksum',
-            'Tus-Checksum-Algorithm' => $hashAlgorithms,
+            'Tus-Checksum-Algorithm' => Upload::supportedHashAlgorithms(),
         ];
 
         return response(null, 204, $headers);
@@ -55,7 +53,7 @@ class TusController extends Controller
 
         if ($checksumHeader) {
             //header expected in format "algorithm checksum"
-            [$algorithm, $checksum] = explode(' ', $checksumHeader);
+            [$algorithm, $checksumSent] = explode(' ', $checksumHeader);
 
             if (! Upload::supportsHashAlgorithm($algorithm)) {
                 return response(null, 400);
@@ -64,9 +62,9 @@ class TusController extends Controller
             $contentChecksum = hash($algorithm, $content);
 
             //checksum expected base64_encoded
-            $checksum = base64_decode($checksum);
+            $checksumSent = base64_decode($checksumSent);
 
-            if ($contentChecksum != $checksum) {
+            if ($contentChecksum != $checksumSent) {
                 return response(null, 460);
             }
         }
