@@ -7,7 +7,7 @@ class Upload extends Resource
     /**
      * @var string[]
      */
-    protected $requiredData = [
+    public $requiredData = [
         'offset',
         'length',
     ];

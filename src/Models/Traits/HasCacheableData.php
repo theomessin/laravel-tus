@@ -12,17 +12,17 @@ trait HasCacheableData
     /**
      * @var string
      */
-    protected $key;
+    public $key;
 
     /**
      * @var array
      */
-    protected $data = [];
+    public $data = [];
 
     /**
      * @var string[]
      */
-    protected $requiredData = [];
+    public $requiredData = [];
 
     /**
      *
@@ -74,5 +74,13 @@ trait HasCacheableData
     public function __set($name, $value)
     {
         $this->data[$name] = $value;
+    }
+
+    /**
+     * Check is attribute is defined
+     */
+    public function has($name)
+    {
+        return isset($this->data[$name]);
     }
 }
