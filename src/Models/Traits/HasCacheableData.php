@@ -31,7 +31,6 @@ trait HasCacheableData
     {
         $data = Cache::get('tus-' . $key);
         if ($data == null) return null;
-
         $class = static::class;
         return new $class($key, $data);
     }
@@ -74,6 +73,7 @@ trait HasCacheableData
     public function __set($name, $value)
     {
         $this->data[$name] = $value;
+        $this->save();
     }
 
     /**

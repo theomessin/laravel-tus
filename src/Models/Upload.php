@@ -30,7 +30,7 @@ class Upload extends Resource
         $file = config('tus.storage.prefix') . '/' . $this->key;
         $disk = Storage::disk(config('tus.storage.disk'));
 
-        $disk->append($file, $contents);
+        $disk->append($file, $contents, '');
         $this->offset = $disk->size($file);
     }
 }
