@@ -3,9 +3,10 @@
 namespace Theomessin\Tus;
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Theomessin\Tus\Models\Upload;
 
-class TusServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -14,6 +15,7 @@ class TusServiceProvider extends ServiceProvider
     {
         $this->mapTusRoutes();
         $this->bootConsole();
+        $this->bindTusModel();
     }
 
     /**
@@ -23,6 +25,7 @@ class TusServiceProvider extends ServiceProvider
     {
         $options = [
             'prefix' => 'tus',
+            'middleware' => ['web'],
             'namespace' => '\Theomessin\Tus\Http\Controllers',
         ];
 
@@ -58,6 +61,13 @@ class TusServiceProvider extends ServiceProvider
     protected function registerCommands()
     {
         $this->commands([]);
+    }
+
+    protected function bindTusModel()
+    {
+        Route::bind('upload', function ($value) {
+            return Upload::find($value) ?? abort(404);
+        });
     }
 
     /**

@@ -1,12 +1,13 @@
 <?php
 
-namespace Theomessin\Tus\Tests;
+namespace Theomessin\Tus\Tests\Feature\Core;
 
-use Illuminate\Support\Facades\Artisan;
+use Theomessin\Tus\Tests\TestCase;
 
-class OptionsRequestTest extends TestCase
+class OptionsTest extends TestCase
 {
     /** @test */
+    // @todo clean up and add testing A/A/A comments.
     public function respond_to_options_request_with_mandatory_headers()
     {
         $expectedHeaders = [
