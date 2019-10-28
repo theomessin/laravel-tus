@@ -31,7 +31,16 @@ final class RouteRegistrar
      */
     public function all()
     {
-        $this->router->options('/', 'Controller@options');
-        $this->router->get('/{key}', 'Controller@head');
+        $this->forCoreProtocol();
+    }
+
+    /**
+     * Register core tus protocol routes.
+     */
+    public function forCoreProtocol()
+    {
+        $this->router->options('/', 'TusController@options');
+        $this->router->get('/{upload}', 'TusController@get');
+        $this->router->post('/', 'TusController@post');
     }
 }
