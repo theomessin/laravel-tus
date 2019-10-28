@@ -77,7 +77,7 @@ trait HasCacheableData
     }
 
     /**
-     * Check is attribute is defined
+     * Check if attribute is defined and not null
      */
     public function has($name)
     {
