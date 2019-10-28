@@ -66,16 +66,17 @@ class TusController extends Controller
 
     public function post(Request $request)
     {
-        $length = intval($request->header('Upload-Length'));
+        $length = $request->header('Upload-Length');
         $metadata = $request->header('Upload-Metadata');
 
-        if (! $length) {
+        if (!$length) {
             return abort(400);
         }
 
+        $length = intval($length);
 
-        if ($length < 0) {
-            return response(400);
+        if ($length < 1) {
+            return abort(400);
         }
 
         $upload = Upload::create(null, [
