@@ -13,6 +13,6 @@ class TestCase extends BaseTestCase
 
     protected function getEnvironmentSetUp($app)
     {
-        $app->useStoragePath(realpath(__DIR__.'../storage'));
+        $app->useStoragePath(realpath(__DIR__ . '/../storage/'));
     }
 }

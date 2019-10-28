@@ -42,5 +42,6 @@ final class RouteRegistrar
         $this->router->options('/', 'TusController@options');
         $this->router->get('/{upload}', 'TusController@get');
         $this->router->post('/', 'TusController@post');
+        $this->router->patch('/{upload}', 'TusController@patch');
     }
 }
