@@ -2,33 +2,28 @@
 
 namespace Theomessin\Tus\Models;
 
-use Theomessin\Tus\Models\Traits\HasCacheableMetadata;
-use Theomessin\Tus\Models\Traits\HasMagicMetadata;
+use Theomessin\Tus\Models\Traits\HasCacheableData;
 
 abstract class Resource
 {
-    use HasMagicMetadata, HasCacheableMetadata {
-        // This here is needed to fix the trait collision in php-7.2.
-        // @todo probably fix by refactoring the traits structure instead.
-        HasCacheableMetadata::enforceRequiredMetadata insteadof HasMagicMetadata;
-    }
+    use HasCacheableData;
 
     /**
      *
      */
-    public function __construct($key = null, $metadata = [])
+    public function __construct($key = null, $data = [])
     {
         $this->key = $key;
-        $this->metadata = $metadata;
+        $this->data = $data;
     }
 
     /**
      *
      */
-    public static function create($key, $metadata)
+    public static function create($key, $data)
     {
         $class = static::class;
-        $object = new $class($key, $metadata);
+        $object = new $class($key, $data);
         $object->save();
         return $object;
     }

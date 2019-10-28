@@ -5,7 +5,7 @@ namespace Theomessin\Tus\Http\Controllers;
 use Illuminate\Routing\Controller;
 use Theomessin\Tus\Models\Upload;
 
-class CoreProtocolController extends Controller
+class TusController extends Controller
 {
     public function options()
     {

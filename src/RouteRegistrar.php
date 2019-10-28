@@ -39,7 +39,7 @@ final class RouteRegistrar
      */
     public function forCoreProtocol()
     {
-        $this->router->options('/', 'CoreProtocolController@options');
-        $this->router->get('/{upload}', 'CoreProtocolController@get');
+        $this->router->options('/', 'TusController@options');
+        $this->router->get('/{upload}', 'TusController@get');
     }
 }

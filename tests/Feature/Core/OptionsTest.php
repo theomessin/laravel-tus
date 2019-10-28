@@ -1,10 +1,10 @@
 <?php
 
-namespace Theomessin\Tus\Tests\Feature\CoreProtocol;
+namespace Theomessin\Tus\Tests\Feature\Core;
 
 use Theomessin\Tus\Tests\TestCase;
 
-class HttpOptionsTest extends TestCase
+class OptionsTest extends TestCase
 {
     /** @test */
     // @todo clean up and add testing A/A/A comments.

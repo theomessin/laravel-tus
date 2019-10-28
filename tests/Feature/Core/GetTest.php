@@ -1,11 +1,11 @@
 <?php
 
-namespace Theomessin\Tus\Tests\Feature\CoreProtocol;
+namespace Theomessin\Tus\Tests\Feature\Core;
 
 use Theomessin\Tus\Models\Upload;
 use Theomessin\Tus\Tests\TestCase;
 
-class HttpGetTest extends TestCase
+class GetTest extends TestCase
 {
     /** @test */
     public function valid_request_returns_with_correct_headers()
