@@ -10,7 +10,6 @@ class GetTest extends TestCase
     /** @test */
     public function valid_request_returns_with_correct_headers()
     {
-        $this->withoutExceptionHandling();
         // Arrange: create test Upload.
         $resource = Upload::create('my-upload-key', [
             'offset' => 321,
