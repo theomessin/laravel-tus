@@ -1,5 +1,8 @@
 <?php
 
 return [
-    "upload_path" => '',
+    'storage' => [
+        'disk' => 'local',
+        'prefix' => 'tus',
+    ],
 ];

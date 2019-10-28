@@ -14,6 +14,11 @@
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
+    <!-- Ignore inline controler structures not allowed -->
+    <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+
     <!-- Ensure 1 blank line before and after functions, except at the top and bottom -->
     <rule ref="Squiz.WhiteSpace.FunctionSpacing">
         <properties>
@@ -45,4 +50,14 @@
 
     <!-- Enforces trailing commas in multi-line arrays and requires short array syntax -->
     <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
+
+    <!-- Looks for unused imports from other namespaces -->
+    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+        <properties>
+            <property name="searchAnnotations" value="true" />
+        </properties>
+    </rule>
+
+    <!-- Double quotes not allowed unless used with variables -->
+    <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
 </ruleset>
