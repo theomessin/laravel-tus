@@ -15,7 +15,6 @@ class ChecksumTest extends TestCase
         return $this->call('PATCH', $uri, [], $cookies, [], $server, $content);
     }
 
-
     /** @test */
     public function options_request_returns_checksum_extension()
     {

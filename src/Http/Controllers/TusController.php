@@ -11,7 +11,7 @@ class TusController extends Controller
     public function options()
     {
         $a = Upload::supportedHashAlgorithms();
-        $hashAlgorithms='sha1';
+        $hashAlgorithms = 'sha1';
         $headers = [
             'Tus-Resumable' => '1.0.0',
             'Tus-Version' => '1.0.0',
