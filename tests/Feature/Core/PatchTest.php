@@ -53,6 +53,59 @@ class PatchTest extends TestCase
     }
 
     /** @test */
+    public function valid_offset_concecutive_requests_are_applied_succesfully()
+    {
+        // Arrange: fake local disk.
+        $disk = Storage::fake('local');
+
+        // Arrange: create a test file of 44 bytes.
+        $contents1 = 'The quick brown fox jumps over the lazy dog.';
+        $contents2 = 'The quick yellow fox jumps over the nerdy cat.';
+
+        // Arrange: create a test upload resource.
+        $resource = Upload::create('my-upload-key', [
+            'offset' => 0,
+            'length' => strlen($contents1 . $contents2),
+        ]);
+
+        // Arrange: the correct headers for the first request.
+        $headers = [
+            'Content-Type' => 'application/offset+octet-stream',
+            'Upload-Offset' => 0,
+        ];
+
+        // Act: upload first chunk
+        $response = $this->patchUpload('/tus/my-upload-key', $headers, $contents1);
+
+        // Assert: returned Upload-Offset size of first chunk
+        $response->assertHeader('Upload-Offset', strlen($contents1));
+
+        // Assert: HTTP No Content.
+        $response->assertStatus(204);
+
+        // Arrange: the correct headers for the second request.
+        $headers = [
+            'Content-Type' => 'application/offset+octet-stream',
+            'Upload-Offset' => $response->headers->get('Upload-Offset'),
+        ];
+
+        // Act: upload second chunk
+        $response = $this->patchUpload('/tus/my-upload-key', $headers, $contents2);
+
+        // Assert: HTTP No Content.
+        $response->assertStatus(204);
+
+        // Assert: returned Upload-Offset is now the size of file.
+        $response->assertHeader('Upload-Offset', strlen($contents1 . $contents2));
+
+        // Assert: the file was correctly saved under local/tus.
+        $disk->assertExists('tus/my-upload-key');
+
+        // Assert: the file contents is equal to concatenation of uploaded chunks.
+        $this->assertEquals($contents1 . $contents2, $disk->get('tus/my-upload-key'));
+    }
+
+    /** @test */
     public function mismatched_offset_requests_return_409_conflict()
     {
         // Arrange: create a test upload resource.

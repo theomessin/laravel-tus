@@ -12,17 +12,17 @@ trait HasCacheableData
     /**
      * @var string
      */
-    protected $key;
+    public $key;
 
     /**
      * @var array
      */
-    protected $data = [];
+    public $data = [];
 
     /**
      * @var string[]
      */
-    protected $requiredData = [];
+    public $requiredData = [];
 
     /**
      *
@@ -31,7 +31,6 @@ trait HasCacheableData
     {
         $data = Cache::get('tus-' . $key);
         if ($data == null) return null;
-
         $class = static::class;
         return new $class($key, $data);
     }
@@ -74,5 +73,14 @@ trait HasCacheableData
     public function __set($name, $value)
     {
         $this->data[$name] = $value;
+        $this->save();
+    }
+
+    /**
+     * Check if attribute is defined and not null
+     */
+    public function has($name)
+    {
+        return isset($this->data[$name]);
     }
 }

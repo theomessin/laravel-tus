@@ -13,6 +13,7 @@ class TusController extends Controller
         $headers = [
             'Tus-Resumable' => '1.0.0',
             'Tus-Version' => '1.0.0',
+            'Tus-Extension' => 'creation',
         ];
 
         return response(null, 204, $headers);
@@ -29,6 +30,10 @@ class TusController extends Controller
 
         if ($upload->length > 0) {
             $headers += ['Upload-Length' => $upload->length];
+        }
+
+        if ($upload->has('metadata')) {
+            $headers += ['Upload-Metadata' => $upload->metadata];
         }
 
         return response(null, 200, $headers);
@@ -57,5 +62,35 @@ class TusController extends Controller
         ];
 
         return response(null, 204, $headers);
+    }
+
+    public function post(Request $request)
+    {
+        $length = $request->header('Upload-Length');
+        $metadata = $request->header('Upload-Metadata');
+
+        if (!$length) {
+            return abort(400);
+        }
+
+        $length = intval($length);
+
+        if ($length < 1) {
+            return abort(400);
+        }
+
+        $upload = Upload::create(null, [
+            'offset' => 0,
+            'length' => $length,
+            'metadata' => $metadata,
+        ]);
+
+        $location = '/tus/' . $upload->key;
+        $headers = [
+            'Tus-Resumable' => '1.0.0',
+            'Location' => $location,
+        ];
+
+        return response(null, 201, $headers);
     }
 }

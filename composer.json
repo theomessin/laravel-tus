@@ -46,7 +46,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Theomessin\\Tus\\TusServiceProvider"
+                "Theomessin\\Tus\\ServiceProvider"
             ]
         }
     }
