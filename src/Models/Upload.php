@@ -33,4 +33,12 @@ class Upload extends Resource
         $disk->append($file, $contents, '');
         $this->offset = $disk->size($file);
     }
+
+    /**
+     * Generates a url to the given Upload resource.
+     */
+    public function getUrl()
+    {
+        return route('tus.resource', ['upload' => $this->key]);
+    }
 }

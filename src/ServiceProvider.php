@@ -24,9 +24,8 @@ class ServiceProvider extends BaseServiceProvider
     protected function mapTusRoutes()
     {
         $options = [
-            'prefix' => 'tus',
             'middleware' => ['web'],
-            'namespace' => '\Theomessin\Tus\Http\Controllers',
+            'prefix' => config('tus.endpoint'),
         ];
 
         Route::group($options, static function ($router) {
