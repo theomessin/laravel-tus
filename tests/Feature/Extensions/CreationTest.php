@@ -9,8 +9,6 @@ class CreationTest extends TestCase
     /** @test */
     public function options_request_returns_creation_extension()
     {
-        // Arrange: Nothing to do
-
         // Act: send options request
         $response = $this->options('/tus');
 
@@ -22,8 +20,6 @@ class CreationTest extends TestCase
     /** @test */
     public function valid_post_request_returns_expected_headers()
     {
-
-        $this->withoutExceptionHandling();
 
         // Arrange: prepare request headers
         $requestHeaders = [
@@ -43,8 +39,6 @@ class CreationTest extends TestCase
     /** @test */
     public function post_request_metadata_returned_with_subsequent_head_request()
     {
-        $this->withoutExceptionHandling();
-
         // Arrange: prepare request headers
         $requestHeaders = [
             'Upload-Length' => 1000,
@@ -63,7 +57,6 @@ class CreationTest extends TestCase
     /** @test */
     public function post_request_without_length_returns_400_without_location()
     {
-
            // Act: send post request without headers
            $response = $this->post('/tus');
 
