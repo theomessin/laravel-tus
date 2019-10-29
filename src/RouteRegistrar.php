@@ -14,6 +14,13 @@ final class RouteRegistrar
     protected $router;
 
     /**
+     * The tus controller.
+     *
+     * @var string
+     */
+    protected $controller;
+
+    /**
      * Create a new route registrar instance.
      *
      * @param  \Illuminate\Contracts\Routing\Registrar  $router
@@ -22,6 +29,7 @@ final class RouteRegistrar
     public function __construct(Router $router)
     {
         $this->router = $router;
+        $this->controller = config('tus.controller');
     }
 
     /**
@@ -32,6 +40,7 @@ final class RouteRegistrar
     public function all()
     {
         $this->forCoreProtocol();
+        $this->forCreationExtension();
     }
 
     /**
@@ -39,9 +48,19 @@ final class RouteRegistrar
      */
     public function forCoreProtocol()
     {
-        $this->router->options('/', 'TusController@options');
-        $this->router->get('/{upload}', 'TusController@get');
-        $this->router->post('/', 'TusController@post');
-        $this->router->patch('/{upload}', 'TusController@patch');
+        $controller = $this->controller;
+
+        $this->router->options('/', "{$controller}@options")->name('tus.server');
+        $this->router->get('/{upload}', "{$controller}@get")->name('tus.resource');
+        $this->router->patch('/{upload}', "{$controller}@patch")->name('tus.patch');
+    }
+
+    /**
+     * Register tus protocol creation extension routes.
+     */
+    public function forCreationExtension()
+    {
+        $controller = $this->controller;
+        $this->router->post('/', "{$controller}@post");
     }
 }

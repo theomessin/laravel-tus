@@ -85,10 +85,9 @@ class TusController extends Controller
             'metadata' => $metadata,
         ]);
 
-        $location = '/tus/' . $upload->key;
         $headers = [
             'Tus-Resumable' => '1.0.0',
-            'Location' => $location,
+            'Location' => $upload->getUrl(),
         ];
 
         return response(null, 201, $headers);
