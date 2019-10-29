@@ -8,6 +8,19 @@ use Theomessin\Tus\Models\Upload;
 
 class TusController extends Controller
 {
+    private function decode($encodedMetadata)
+    {
+        $metadata = [];
+        $metadataArray = explode(',', $encodedMetadata);
+        foreach ($metadataArray as $pair) {
+            $items = explode(' ', $pair);
+            $key = $items[0];
+            $value = $items[1] ?? null;
+            $metadata[$key] = $value ? base64_decode($value) : null;
+        }
+        return $metadata;
+    }
+
     public function options()
     {
         $headers = [
@@ -33,8 +46,8 @@ class TusController extends Controller
             $headers += ['Upload-Length' => $upload->length];
         }
 
-        if ($upload->has('metadata')) {
-            $headers += ['Upload-Metadata' => $upload->metadata];
+        if ($upload->has('encodedMetadata')) {
+            $headers += ['Upload-Metadata' => $upload->encodedMetadata];
         }
 
         return response(null, 200, $headers);
@@ -92,7 +105,7 @@ class TusController extends Controller
     public function post(Request $request)
     {
         $length = $request->header('Upload-Length');
-        $metadata = $request->header('Upload-Metadata');
+        $encodedMetadata = $request->header('Upload-Metadata');
 
         if (!$length) {
             return abort(400);
@@ -104,9 +117,12 @@ class TusController extends Controller
             return abort(400);
         }
 
+        $metadata = $this->decode($encodedMetadata);
+
         $upload = Upload::create(null, [
             'offset' => 0,
             'length' => $length,
+            'encodedMetadata' => $encodedMetadata,
             'metadata' => $metadata,
         ]);
 
