@@ -1,6 +1,6 @@
 {
     "name": "theomessin/laravel-tus",
-    "description": "",
+    "description": "A Laravel tus protocol implementation written from scratch.",
     "keywords": [
         "theomessin",
         "laravel-tus"
@@ -12,6 +12,11 @@
         {
             "name": "Theodore Messinezis",
             "email": "theodore@messinezis.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Panagiotis Messinezis",
+            "email": "panagiotis@messinezis.com",
             "role": "Developer"
         }
     ],
@@ -36,9 +41,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
-
+        "test": "vendor/bin/phpunit"
     },
     "config": {
         "sort-packages": true
