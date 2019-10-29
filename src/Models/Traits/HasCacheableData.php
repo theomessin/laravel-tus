@@ -48,6 +48,14 @@ trait HasCacheableData
     /**
      *
      */
+    public function delete()
+    {
+        Cache::pull('tus-' . $this->key);
+    }
+
+    /**
+     *
+     */
     public function enforceRequiredData()
     {
         $blueprint = new Collection($this->requiredData);

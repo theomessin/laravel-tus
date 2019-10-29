@@ -81,6 +81,11 @@ class TusController extends Controller
             'Upload-Offset' => $upload->offset,
         ];
 
+        if ($upload->offset == $upload->length) {
+            $this->done($upload);
+            $upload->delete();
+        }
+
         return response(null, 204, $headers);
     }
 
@@ -111,5 +116,10 @@ class TusController extends Controller
         ];
 
         return response(null, 201, $headers);
+    }
+
+    public function done(Upload $upload)
+    {
+        # code... to be overriden
     }
 }
