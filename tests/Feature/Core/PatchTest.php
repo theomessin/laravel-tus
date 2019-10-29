@@ -7,7 +7,7 @@ use Theomessin\Tus\Models\Upload;
 
 class PatchTest extends TestCase
 {
-    private function patchUpload($uri, $headers = [], $content = null)
+    protected function patchUpload($uri, $headers = [], $content = null)
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
