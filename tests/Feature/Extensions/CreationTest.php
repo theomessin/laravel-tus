@@ -43,8 +43,6 @@ class CreationTest extends TestCase
     /** @test */
     public function post_request_metadata_returned_with_subsequent_head_request()
     {
-        $this->withoutExceptionHandling();
-
         // Arrange: prepare request headers
         $requestHeaders = [
             'Upload-Length' => 1000,
