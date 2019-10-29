@@ -29,8 +29,11 @@ trait HasCacheableData
      */
     public static function find($key)
     {
-        $data = Cache::get('tus-' . $key);
-        if ($data == null) return null;
+        if (! Cache::has("tus-{$key}")) {
+            return null;
+        }
+
+        $data = Cache::get("tus-{$key}");
         $class = static::class;
         return new $class($key, $data);
     }
