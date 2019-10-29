@@ -16,7 +16,6 @@ class MetadataTest extends TestCase
             'key_one' => 'value_one',
             'key_two' => 'value_two',
             'key_for_space' => ' ',
-            'key_for_empty_string' => '',
             'key_zero' => '0',
             'keyWithoutValue' => null,
         ];

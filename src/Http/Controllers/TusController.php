@@ -16,7 +16,7 @@ class TusController extends Controller
             $items = explode(' ', $pair);
             $key = $items[0];
             $value = $items[1] ?? null;
-            $metadata[$key] = $value !== null ? base64_decode($value) : null;
+            $metadata[$key] = $value ? base64_decode($value) : null;
         }
         return $metadata;
     }
