@@ -13,7 +13,8 @@ class TusController extends Controller
         $headers = [
             'Tus-Resumable' => '1.0.0',
             'Tus-Version' => '1.0.0',
-            'Tus-Extension' => 'creation',
+            'Tus-Extension' => 'creation,checksum',
+            'Tus-Checksum-Algorithm' => Upload::supportedHashAlgorithms(),
         ];
 
         return response(null, 204, $headers);
@@ -44,9 +45,28 @@ class TusController extends Controller
         $content = $request->getContent();
         $contentType = $request->header('Content-Type');
         $uploadOffset = $request->header('Upload-Offset');
+        $checksumHeader = $request->header('Upload-Checksum');
 
         if ($contentType != 'application/offset+octet-stream') {
             return response(null, 415);
+        }
+
+        if ($checksumHeader) {
+            //header expected in format "algorithm checksum"
+            [$algorithm, $checksumSent] = explode(' ', $checksumHeader);
+
+            if (! Upload::supportsHashAlgorithm($algorithm)) {
+                return response(null, 400);
+            }
+
+            $contentChecksum = hash($algorithm, $content);
+
+            //checksum expected base64_encoded
+            $checksumSent = base64_decode($checksumSent);
+
+            if ($contentChecksum != $checksumSent) {
+                return response(null, 460);
+            }
         }
 
         if ($upload->offset != $uploadOffset) {

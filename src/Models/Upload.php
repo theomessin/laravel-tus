@@ -14,6 +14,36 @@ class Upload extends Resource
         'length',
     ];
 
+    public static function supportedHashAlgorithms()
+    {
+        $toLower = function ($a) {
+            return  strtolower($a);
+        };
+
+        $algosArray = array_map($toLower, hash_algos());
+
+        $doesNotContainComma = function ($a) {
+            return strpos($a, ',') === false;
+        };
+
+        $algosArray = array_filter(hash_algos(), $doesNotContainComma);
+
+        $hashAlgorithms = implode(',', $algosArray);
+
+        return $hashAlgorithms;
+    }
+
+    public static function supportsHashAlgorithm($algorithm)
+    {
+        $toLCase = function ($a) {
+            return strtolower($a);
+        };
+
+        $algosArray = array_map($toLCase, hash_algos());
+
+        return in_array($algorithm, $algosArray);
+    }
+
     /**
      *
      */
