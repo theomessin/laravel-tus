@@ -4,6 +4,7 @@ namespace Theomessin\Tus\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Collection;
 use Theomessin\Tus\Models\Upload;
 
 class TusController extends Controller
@@ -117,7 +118,7 @@ class TusController extends Controller
             return abort(400);
         }
 
-        $metadata = $this->decode($encodedMetadata);
+        $metadata = new Collection($this->decode($encodedMetadata));
 
         $upload = Upload::create(null, [
             'offset' => 0,

@@ -47,7 +47,7 @@ class MetadataTest extends TestCase
         //Assert: resource has encoded metadata
         $this->assertSame($encodedMetadata, $upload->encodedMetadata);
 
-        //Assert: resource returns metadata decoded
-        $this->assertSame($metadata, $upload->metadata);
+        //Assert: resource returns decoded metadata (expected as a collection)
+        $this->assertSame($metadata, $upload->metadata->all());
     }
 }
