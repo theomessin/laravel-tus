@@ -8,8 +8,6 @@ use Theomessin\Tus\Models\Upload;
 
 class TusController extends Controller
 {
-
-
     public function options()
     {
         $headers = [
