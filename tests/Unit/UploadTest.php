@@ -12,7 +12,7 @@ class UploadTest extends TestCase
     public function metadata_magic_accessor_decodes_metadata_from_data()
     {
         // Arrange: some testing metadata.
-        $encodedMetadata = 'filename d29ybGRfZG9taW5hdGlvbl9wbGFuLnBkZg==, mimetype dGV4dC9wbGFpbg==';
+        $encodedMetadata = 'filename d29ybGRfZG9taW5hdGlvbl9wbGFuLnBkZg==,mimetype dGV4dC9wbGFpbg==';
 
         // Arrange: create a new Upload.
         $uut = new Upload('some-key', [

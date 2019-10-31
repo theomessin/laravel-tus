@@ -12,15 +12,28 @@ trait CanTusUpload
      * @param  bool  $assertions  Whether to run assertions.
      * @return  string  The key of the upload.
      */
-    protected function UploadViaTus($contents, $chunkSize = null, $assertions = false)
+    protected function UploadViaTus($contents, $metadata = [], $chunkSize = null, $assertions = false)
     {
+        // Arrange: prepare to encode metadata:
+        $metadata = collect($metadata)->map(function ($v) {
+            return base64_encode($v);
+        })->map(function ($v, $k) {
+             return "{$k} {$v}";
+        })->flatten()->implode(',');
+
         // Arrange: prepare upload details.
         $uploadLength = strlen($contents);
         if ($chunkSize <= 0) $chunkSize = null;
         $chunkSize = $chunkSize ?? $uploadLength;
 
+        // Arrange: prepare creation extension headers.
+        $headers = ['Upload-Length' => $uploadLength];
+        if ($metadata != '') {
+            $headers += ['Upload-Metadata' => $metadata];
+        }
+
         // Arrange: create the upload using the creation extension.
-        $response = $this->post('/tus', [], ['Upload-Length' => $uploadLength]);
+        $response = $this->post('/tus', [], $headers);
         $location = $response->headers->get('Location');
 
         // Act: Upload the entire contents chunk by chunk.
