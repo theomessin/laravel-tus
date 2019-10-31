@@ -12,7 +12,7 @@ trait CanTusUpload
      * @param  bool  $assertions  Whether to run assertions.
      * @return  string  The key of the upload.
      */
-    protected function UploadViaTus($contents, $metadata = [], $chunkSize = null, $assertions = false)
+    protected function uploadViaTus($contents, $metadata = [], $chunkSize = null, $assertions = false)
     {
         // Arrange: prepare to encode metadata:
         $metadata = collect($metadata)->map(function ($v) {
