@@ -2,6 +2,7 @@
 
 namespace Theomessin\Tus\Models;
 
+use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class Upload extends Resource
@@ -70,5 +71,43 @@ class Upload extends Resource
     public function getUrl()
     {
         return route('tus.resource', ['upload' => $this->key]);
+    }
+
+    private function getMetadata()
+    {
+        if (! $this->has('metadata')) return collect();
+        $encoded = $this->data['metadata'];
+
+        try {
+            $encoded = str_replace(', ', ',', $encoded);
+            $metadata = collect(explode(',', $encoded));
+            $metadata = $metadata->mapWithKeys(function ($v) {
+                $parts = explode(' ', $v);
+                return [$parts[0] => $parts[1]];
+            });
+            $metadata = $metadata->map(function ($v) {
+                return base64_decode($v);
+            });
+
+            return $metadata;
+        } catch (Exception $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Extend magic data getter.
+     */
+    public function __get($name)
+    {
+        if ($name == 'metadata') {
+            return $this->getMetadata();
+        }
+
+        if ($this->getMetadata()->has($name)) {
+            return $this->getMetadata()[$name];
+        }
+
+        return parent::__get($name);
     }
 }

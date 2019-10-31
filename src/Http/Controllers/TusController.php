@@ -34,7 +34,7 @@ class TusController extends Controller
         }
 
         if ($upload->has('metadata')) {
-            $headers += ['Upload-Metadata' => $upload->metadata];
+            $headers += ['Upload-Metadata' => $upload->data['metadata']];
         }
 
         return response(null, 200, $headers);
@@ -82,7 +82,7 @@ class TusController extends Controller
         ];
 
         if ($upload->offset == $upload->length) {
-            $this->done($upload);
+            $this->postUploadActions($upload);
             $upload->delete();
         }
 
@@ -94,6 +94,7 @@ class TusController extends Controller
         $length = $request->header('Upload-Length');
         $metadata = $request->header('Upload-Metadata');
 
+        // @PMessinezis I don't like this code.
         if (!$length) {
             return abort(400);
         }
@@ -118,8 +119,8 @@ class TusController extends Controller
         return response(null, 201, $headers);
     }
 
-    public function done(Upload $upload)
+    public function postUploadActions(Upload $upload)
     {
-        # code... to be overriden
+        //
     }
 }

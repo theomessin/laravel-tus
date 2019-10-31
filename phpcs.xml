@@ -19,6 +19,23 @@
         <exclude-pattern>*</exclude-pattern>
     </rule>
 
+    <!-- Ignore blank line found at start of control structure -->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+
+    <!-- Ensure no more than 1 blank lines in a row -->
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Ensure no more than 1 blank lines in a row -->
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+        <severity>5</severity>
+    </rule>
+
     <!-- Ensure 1 blank line before and after functions, except at the top and bottom -->
     <rule ref="Squiz.WhiteSpace.FunctionSpacing">
         <properties>
