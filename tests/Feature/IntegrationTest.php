@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Storage;
 use Theomessin\Tus\Tests\Helpers\CanTusUpload;
 use Theomessin\Tus\Tests\TestCase;
 
-
 class IntegrationTest extends TestCase
 {
     use CanTusUpload;
