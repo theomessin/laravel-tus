@@ -8,18 +8,7 @@ use Theomessin\Tus\Models\Upload;
 
 class TusController extends Controller
 {
-    private function decode($encodedMetadata)
-    {
-        $metadata = [];
-        $metadataArray = explode(',', $encodedMetadata);
-        foreach ($metadataArray as $pair) {
-            $items = explode(' ', $pair);
-            $key = $items[0];
-            $value = $items[1] ?? null;
-            $metadata[$key] = $value ? base64_decode($value) : null;
-        }
-        return $metadata;
-    }
+
 
     public function options()
     {
@@ -46,8 +35,8 @@ class TusController extends Controller
             $headers += ['Upload-Length' => $upload->length];
         }
 
-        if ($upload->has('encodedMetadata')) {
-            $headers += ['Upload-Metadata' => $upload->encodedMetadata];
+        if ($upload->has('metadata')) {
+            $headers += ['Upload-Metadata' => $upload->data['metadata']];
         }
 
         return response(null, 200, $headers);
@@ -95,7 +84,7 @@ class TusController extends Controller
         ];
 
         if ($upload->offset == $upload->length) {
-            $this->done($upload);
+            $this->postUploadActions($upload);
             $upload->delete();
         }
 
@@ -105,8 +94,9 @@ class TusController extends Controller
     public function post(Request $request)
     {
         $length = $request->header('Upload-Length');
-        $encodedMetadata = $request->header('Upload-Metadata');
+        $metadata = $request->header('Upload-Metadata');
 
+        // @PMessinezis I don't like this code.
         if (!$length) {
             return abort(400);
         }
@@ -117,12 +107,9 @@ class TusController extends Controller
             return abort(400);
         }
 
-        $metadata = $this->decode($encodedMetadata);
-
         $upload = Upload::create(null, [
             'offset' => 0,
             'length' => $length,
-            'encodedMetadata' => $encodedMetadata,
             'metadata' => $metadata,
         ]);
 
@@ -134,8 +121,8 @@ class TusController extends Controller
         return response(null, 201, $headers);
     }
 
-    public function done(Upload $upload)
+    public function postUploadActions(Upload $upload)
     {
-        # code... to be overriden
+        //
     }
 }
