@@ -33,7 +33,7 @@ class IntegrationTest extends TestCase
         $disk = Storage::fake('local');
 
         // Act: Upload the entire contents, with assertions.
-        $key = $this->UploadViaTus($this->contents, 69, true);
+        $key = $this->uploadViaTus($this->contents, [], 69, true);
 
         // Assert: the uploaded file is equal to the contents.
         $this->assertEquals($this->contents, $disk->get("tus/{$key}"));
@@ -46,7 +46,7 @@ class IntegrationTest extends TestCase
         $disk = Storage::fake('local');
 
         // Act: Upload the entire contents as one chunk.
-        $key = $this->UploadViaTus($this->contents, 0, false);
+        $key = $this->uploadViaTus($this->contents, [], 0, false);
 
         // Assert: the upload resource is not found.
         $this->get("/tus/{$key}")->assertNotFound();
