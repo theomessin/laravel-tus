@@ -58,10 +58,29 @@ class Upload extends Resource
      */
     public function append($contents)
     {
-        $file = config('tus.storage.prefix') . '/' . $this->key;
+        // Helper variables for this ridiculously complex code.
         $disk = Storage::disk(config('tus.storage.disk'));
+        $file = config('tus.storage.prefix') . '/' . $this->key;
 
-        $disk->append($file, $contents, '');
+        // We'll use this temporary file stream to "append".
+        $ss = tmpfile();
+
+        // If a file already exists, stream the contents into our temp stream.
+        if ($disk->exists($file)) {
+            $s_file = $disk->getDriver()->readStream($file);
+            stream_copy_to_stream($s_file, $ss);
+        }
+
+        // Append new chunk contents to temp stream.
+        fwrite($ss, $contents);
+
+        // Stream temp stream back to disk.
+        $disk->put($file, $ss);
+
+        // Close the temporary stream.
+        fclose($ss);
+
+        // Update the upload offset with the new size on disk.
         $this->offset = $disk->size($file);
     }
 
