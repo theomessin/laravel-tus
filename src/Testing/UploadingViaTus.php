@@ -1,16 +1,29 @@
 <?php
 
-namespace Theomessin\Tus\Tests\Helpers;
+namespace Theomessin\Tus\Testing;
 
-trait CanTusUpload
+use Theomessin\Tus\Models\Upload;
+
+trait UploadingViaTus
 {
+    public function __construct()
+    {
+        parent::__construct();
+        // Arrange: the awesome Lamb of God Omerta lyrics contents to be uploaded.
+        $this->contents = 'Whoever appeals to the law against his fellow man is either a fool or a coward' . PHP_EOL;
+        $this->contents .= 'Whoever cannot take care of himself without that law is both' . PHP_EOL;
+        $this->contents .= 'For a wounded man will shall say to his assailant' . PHP_EOL;
+        $this->contents .= '"If I live, I will kill you. If I die, you are forgiven"' . PHP_EOL;
+        $this->contents .= 'Such is the rule of honor';
+    }
+
     /**
      * Allows to upload some contents via Tus.
      *
      * @param  string  $contents  The contents to upload.
      * @param  int|null  $chunkSize  The size of each chunk.
      * @param  bool  $assertions  Whether to run assertions.
-     * @return  string  The key of the upload.
+     * @return  Upload  The upload object.
      */
     protected function uploadViaTus($contents, $metadata = [], $chunkSize = null, $assertions = false)
     {
@@ -37,10 +50,10 @@ trait CanTusUpload
         $location = $response->headers->get('Location');
 
         // Act: Upload the entire contents chunk by chunk.
-        $this->ChunkedUpload($location, $contents, $chunkSize, $assertions);
+        $this->chunkedUpload($location, $contents, $chunkSize, $assertions);
 
-        // Return the upload key.
-        return basename($location);
+        // Return the upload object.
+        return Upload::withTrashed()->where('key', basename($location))->firstOrFail();
     }
 
     /**
@@ -48,7 +61,7 @@ trait CanTusUpload
      *
      * @return  bool  Whether the complete upload was successful.
      */
-    protected function ChunkedUpload($location, $contents, $chunkSize, $assertions = false, $offset = 0)
+    protected function chunkedUpload($location, $contents, $chunkSize, $assertions = false, $offset = 0)
     {
         // If contents empty, we're done!
         if (strlen($contents) == 0) return;
@@ -75,7 +88,7 @@ trait CanTusUpload
 
         // Step 3: Upload the rest of the contents.
         $remainingContents = substr($contents, $chunkSize);
-        $this->ChunkedUpload($location, $remainingContents, $chunkSize, $assertions, $newOffset);
+        $this->chunkedUpload($location, $remainingContents, $chunkSize, $assertions, $newOffset);
     }
 
     /**

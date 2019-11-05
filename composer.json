@@ -13,11 +13,6 @@
             "name": "Theodore Messinezis",
             "email": "theodore@messinezis.com",
             "role": "Developer"
-        },
-        {
-            "name": "Panagiotis Messinezis",
-            "email": "panagiotis@messinezis.com",
-            "role": "Developer"
         }
     ],
     "require": {
@@ -32,12 +27,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Theomessin\\Tus\\": "src",
+            "Theomessin\\Tus\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Theomessin\\Tus\\Tests\\": "tests"
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit --testdox"
     },
     "config": {
         "sort-packages": true

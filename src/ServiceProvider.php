@@ -13,9 +13,18 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function boot()
     {
+        $this->publishMigrations();
         $this->mapTusRoutes();
         $this->bootConsole();
         $this->bindTusModel();
+    }
+
+    /**
+     * Publish the migrations for this package.
+     */
+    protected function publishMigrations()
+    {
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**
@@ -65,7 +74,9 @@ class ServiceProvider extends BaseServiceProvider
     protected function bindTusModel()
     {
         Route::bind('upload', function ($value) {
-            return Upload::find($value) ?? abort(404);
+            $upload = Upload::where('key', $value)->firstOrFail();
+            if ($upload->trashed()) abort(404);
+            return $upload;
         });
     }
 
