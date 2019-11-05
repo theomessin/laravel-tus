@@ -2,6 +2,7 @@
 
 namespace Theomessin\Tus;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Theomessin\Tus\Models\Upload;
@@ -13,10 +14,21 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function boot()
     {
+        $this->registerGates();
         $this->publishMigrations();
         $this->mapTusRoutes();
         $this->bootConsole();
         $this->bindTusModel();
+    }
+
+    /**
+     * Register any authorization gates.
+     */
+    protected function registerGates()
+    {
+        Gate::define('action-upload', function ($user, Upload $upload) {
+            return $user->id == $upload->user_id;
+        });
     }
 
     /**
@@ -76,6 +88,7 @@ class ServiceProvider extends BaseServiceProvider
         Route::bind('upload', function ($value) {
             $upload = Upload::where('key', $value)->firstOrFail();
             if ($upload->trashed()) abort(404);
+            if (Gate::denies('action-upload', $upload)) abort(403);
             return $upload;
         });
     }
