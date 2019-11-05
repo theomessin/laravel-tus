@@ -4,11 +4,22 @@ namespace Theomessin\Tus\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Theomessin\Tus\Jobs\ProcessUpload;
 use Theomessin\Tus\Models\Upload;
 
 class TusController extends Controller
 {
+    /**
+     * Instantiate a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function options()
     {
         $headers = [
@@ -82,6 +93,7 @@ class TusController extends Controller
         $upload = Upload::create([
             'length' => $length,
             'metadata' => $metadata,
+            'user_id' => Auth::user()->id,
             // @todo I hate that I need these here:
             'key' => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
             'accumulator' => 'this-will-magically-change',

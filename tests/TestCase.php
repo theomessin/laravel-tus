@@ -2,12 +2,16 @@
 
 namespace Theomessin\Tus\Tests;
 
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
 {
     use DatabaseMigrations;
+
+    /** @var User */
+    protected $user;
 
     /**
      * Setup the test environment.
@@ -21,6 +25,12 @@ class TestCase extends BaseTestCase
 
         // Use our own factories for models.
         $this->withFactories(__DIR__.'/../database/factories');
+
+        // Create a default user for all requests.
+        $this->user = factory(User::class)->create();
+
+        // Register all requests acting as this user.
+        $this->actingAs($this->user);
     }
 
     protected function getPackageProviders($app)
