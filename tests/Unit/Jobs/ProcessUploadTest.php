@@ -3,7 +3,6 @@
 namespace Theomessin\Tus\Tests\Unit\Jobs;
 
 use Illuminate\Support\Facades\Queue;
-use Theomessin\Tus\Models\Upload;
 use Illuminate\Support\Facades\Storage;
 use Theomessin\Tus\Jobs\ProcessUpload;
 use Theomessin\Tus\Testing\UploadingViaTus;
