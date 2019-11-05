@@ -15,8 +15,22 @@ class ProcessUpload implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var \Illuminate\Contracts\Filesystem\Filesystem
+     */
     protected $disk;
+
+    /**
+     * @var Upload
+     */
     public $upload;
+
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 600;
 
     /**
      * Create a new job instance.
