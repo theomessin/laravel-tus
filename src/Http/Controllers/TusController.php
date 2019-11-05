@@ -4,6 +4,7 @@ namespace Theomessin\Tus\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Theomessin\Tus\Jobs\ProcessUpload;
 use Theomessin\Tus\Models\Upload;
 
 class TusController extends Controller
@@ -13,8 +14,7 @@ class TusController extends Controller
         $headers = [
             'Tus-Resumable' => '1.0.0',
             'Tus-Version' => '1.0.0',
-            'Tus-Extension' => 'creation,checksum',
-            'Tus-Checksum-Algorithm' => Upload::supportedHashAlgorithms(),
+            'Tus-Extension' => 'creation',
         ];
 
         return response(null, 204, $headers);
@@ -33,8 +33,8 @@ class TusController extends Controller
             $headers += ['Upload-Length' => $upload->length];
         }
 
-        if ($upload->has('metadata')) {
-            $headers += ['Upload-Metadata' => $upload->data['metadata']];
+        if ($upload->getAttributes()['metadata'] !== null) {
+            $headers += ['Upload-Metadata' => $upload->getAttributes()['metadata']];
         }
 
         return response(null, 200, $headers);
@@ -45,35 +45,16 @@ class TusController extends Controller
         $content = $request->getContent();
         $contentType = $request->header('Content-Type');
         $uploadOffset = $request->header('Upload-Offset');
-        $checksumHeader = $request->header('Upload-Checksum');
 
         if ($contentType != 'application/offset+octet-stream') {
             return response(null, 415);
-        }
-
-        if ($checksumHeader) {
-            //header expected in format "algorithm checksum"
-            [$algorithm, $checksumSent] = explode(' ', $checksumHeader);
-
-            if (! Upload::supportsHashAlgorithm($algorithm)) {
-                return response(null, 400);
-            }
-
-            $contentChecksum = hash($algorithm, $content);
-
-            //checksum expected base64_encoded
-            $checksumSent = base64_decode($checksumSent);
-
-            if ($contentChecksum != $checksumSent) {
-                return response(null, 460);
-            }
         }
 
         if ($upload->offset != $uploadOffset) {
             return response(null, 409);
         }
 
-        $upload->append($content);
+        $upload->appendToAccumulator($content);
 
         $headers = [
             'Tus-Resumable' => '1.0.0',
@@ -82,8 +63,8 @@ class TusController extends Controller
         ];
 
         if ($upload->offset == $upload->length) {
-            $this->postUploadActions($upload);
-            $upload->delete();
+            $upload->delete();  // Soft delete.
+            ProcessUpload::dispatch($upload);
         }
 
         return response(null, 204, $headers);
@@ -91,36 +72,28 @@ class TusController extends Controller
 
     public function post(Request $request)
     {
-        $length = $request->header('Upload-Length');
+        $length = intval($request->header('Upload-Length'));
         $metadata = $request->header('Upload-Metadata');
-
-        // @PMessinezis I don't like this code.
-        if (!$length) {
-            return abort(400);
-        }
-
-        $length = intval($length);
 
         if ($length < 1) {
             return abort(400);
         }
 
-        $upload = Upload::create(null, [
-            'offset' => 0,
+        $upload = Upload::create([
             'length' => $length,
             'metadata' => $metadata,
+            // @todo I hate that I need these here:
+            'key' => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+            'accumulator' => 'this-will-magically-change',
         ]);
+
+        $location = route('tus.resource', ['upload' => $upload->key]);
 
         $headers = [
             'Tus-Resumable' => '1.0.0',
-            'Location' => $upload->getUrl(),
+            'Location' => $location,
         ];
 
         return response(null, 201, $headers);
-    }
-
-    public function postUploadActions(Upload $upload)
-    {
-        //
     }
 }

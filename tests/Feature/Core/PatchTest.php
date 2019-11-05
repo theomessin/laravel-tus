@@ -1,9 +1,10 @@
 <?php
 
-namespace Theomessin\Tus\Tests;
+namespace Theomessin\Tus\Tests\Core;
 
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Theomessin\Tus\Models\Upload;
+use Theomessin\Tus\Tests\TestCase;
 
 class PatchTest extends TestCase
 {
@@ -16,102 +17,62 @@ class PatchTest extends TestCase
     }
 
     /** @test */
-    public function valid_offset_requests_are_applied_succesfully()
-    {
-        // Arrange: fake local disk.
-        $disk = Storage::fake('local');
-
-        // Arrange: create a test upload resource.
-        $resource = Upload::create('my-upload-key', [
-            'offset' => 0,
-            'length' => 44,
-        ]);
-
-        // Arrange: create a test file of 44 bytes.
-        $contents = 'The quick brown fox jumps over the lazy dog.';
-
-        // Arrange: the correct headers for the request.
-        $headers = [
-            'Content-Type' => 'application/offset+octet-stream',
-            'Upload-Offset' => 0,
-        ];
-
-        // Act: upload the file using a valid patch request.
-        $response = $this->patchUpload('/tus/my-upload-key', $headers, $contents);
-
-        // Assert: HTTP No Content.
-        $response->assertStatus(204);
-
-        // Assert: returned Upload-Offset is now the size of file.
-        $response->assertHeader('Upload-Offset', 44);
-
-        // Assert: the file was correctly saved under local/tus.
-        $disk->assertExists('tus/my-upload-key');
-
-        // Assert: the file contents is equal to contents uploaded.
-        $this->assertEquals($contents, $disk->get('tus/my-upload-key'));
-    }
-
-    /** @test */
     public function valid_offset_concecutive_requests_are_applied_succesfully()
     {
-        // Arrange: fake local disk.
-        $disk = Storage::fake('local');
-
-        // Arrange: create a test file of 44 bytes.
-        $contents1 = 'The quick brown fox jumps over the lazy dog.';
-        $contents2 = 'The quick yellow fox jumps over the nerdy cat.';
-
         // Arrange: create a test upload resource.
-        $resource = Upload::create('my-upload-key', [
-            'offset' => 0,
-            'length' => strlen($contents1 . $contents2),
+        // Note: default offset is zero since there are no chunks.
+        factory(Upload::class)->create([
+            'key' => 'b4fbee15-16ac-44ec-aed6-c1c5a9c10325',
         ]);
 
-        // Arrange: the correct headers for the first request.
-        $headers = [
+        // Arrange: this is where to fire patch requests.
+        $uri = '/tus/b4fbee15-16ac-44ec-aed6-c1c5a9c10325';
+
+        // Arrange: create a test file of 35 + 35 bytes.
+        $contents_1 = 'This is the first line of contents' . PHP_EOL;
+        $contents_2 = 'This is the second line of contents';
+
+        // Act: upload the contents$ using a valid patch request.
+        $response = $this->patchUpload($uri, [
             'Content-Type' => 'application/offset+octet-stream',
             'Upload-Offset' => 0,
-        ];
-
-        // Act: upload first chunk
-        $response = $this->patchUpload('/tus/my-upload-key', $headers, $contents1);
-
-        // Assert: returned Upload-Offset size of first chunk
-        $response->assertHeader('Upload-Offset', strlen($contents1));
+        ], $contents_1);
 
         // Assert: HTTP No Content.
         $response->assertStatus(204);
 
-        // Arrange: the correct headers for the second request.
-        $headers = [
+        // Assert: returned Upload-Offset is now the size of what we sent.
+        $response->assertHeader('Upload-Offset', 35);
+
+        // Act: upload the contents$ using a valid patch request.
+        $response = $this->patchUpload($uri, [
             'Content-Type' => 'application/offset+octet-stream',
-            'Upload-Offset' => $response->headers->get('Upload-Offset'),
-        ];
-
-        // Act: upload second chunk
-        $response = $this->patchUpload('/tus/my-upload-key', $headers, $contents2);
+            'Upload-Offset' => 35,
+        ], $contents_2);
 
         // Assert: HTTP No Content.
         $response->assertStatus(204);
 
-        // Assert: returned Upload-Offset is now the size of file.
-        $response->assertHeader('Upload-Offset', strlen($contents1 . $contents2));
+        // Assert: returned Upload-Offset is now the size of what we sent.
+        $response->assertHeader('Upload-Offset', 70);
 
-        // Assert: the file was correctly saved under local/tus.
-        $disk->assertExists('tus/my-upload-key');
+        // Note: this is where the chunks should be accumulated.
+        $accumulator = Upload::firstOrFail()->accumulator;
 
-        // Assert: the file contents is equal to concatenation of uploaded chunks.
-        $this->assertEquals($contents1 . $contents2, $disk->get('tus/my-upload-key'));
+        // Assert: the accumulator exists.
+        $this->assertTrue(File::exists($accumulator));
+
+        // Assert: the file contents are equal to the contents uploaded.
+        $this->assertEquals($contents_1 . $contents_2, file_get_contents($accumulator));
     }
 
     /** @test */
     public function mismatched_offset_requests_return_409_conflict()
     {
         // Arrange: create a test upload resource.
-        $resource = Upload::create('my-upload-key', [
-            'offset' => 0,
-            'length' => 123,
+        // Note: default offset is zero since there are no chunks.
+        factory(Upload::class)->create([
+            'key' => 'b4fbee15-16ac-44ec-aed6-c1c5a9c10325',
         ]);
 
         // Arrange: invalid Upload-Offset headers for the request.
@@ -121,7 +82,7 @@ class PatchTest extends TestCase
         ];
 
         // Act: upload contents using patch with invalid headers.
-        $response = $this->patch('/tus/my-upload-key', [], $headers);
+        $response = $this->patch('/tus/b4fbee15-16ac-44ec-aed6-c1c5a9c10325', [], $headers);
 
         // Assert: HTTP Conflict.
         $response->assertStatus(409);
@@ -131,9 +92,8 @@ class PatchTest extends TestCase
     public function invalid_content_type_requests_return_415_unsupported()
     {
         // Arrange: create a test upload resource.
-        $resource = Upload::create('my-upload-key', [
-            'offset' => 0,
-            'length' => 123,
+        factory(Upload::class)->create([
+            'key' => 'b4fbee15-16ac-44ec-aed6-c1c5a9c10325',
         ]);
 
         // Arrange: invalid Content-Type headers for the request.
@@ -142,7 +102,7 @@ class PatchTest extends TestCase
         ];
 
         // Act: upload contents using patch with invalid headers.
-        $response = $this->patch('/tus/my-upload-key', [], $headers);
+        $response = $this->patch('/tus/b4fbee15-16ac-44ec-aed6-c1c5a9c10325', [], $headers);
 
         // Assert: HTTP Unsupported.
         $response->assertStatus(415);
@@ -152,7 +112,7 @@ class PatchTest extends TestCase
     public function requests_against_non_existent_resources_return_404_not_found()
     {
         // Act: patch request to non existent upload.
-        $response = $this->patch('/tus/some-fake-key');
+        $response = $this->patch('/tus/some-non-existant-uuid-key');
 
         // Assert: HTTP status code 404.
         $response->assertNotFound();

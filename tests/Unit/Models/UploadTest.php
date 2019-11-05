@@ -1,6 +1,6 @@
 <?php
 
-namespace Theomessin\Tus\Tests\Unit;
+namespace Theomessin\Tus\Tests\Unit\Models;
 
 use Illuminate\Support\Collection;
 use Theomessin\Tus\Models\Upload;
@@ -12,14 +12,13 @@ class UploadTest extends TestCase
     public function metadata_magic_accessor_decodes_metadata_from_data()
     {
         // Arrange: some testing metadata.
-        $encodedMetadata = 'filename d29ybGRfZG9taW5hdGlvbl9wbGFuLnBkZg==,mimetype dGV4dC9wbGFpbg==';
+        $metadata = 'filename d29ybGRfZG9taW5hdGlvbl9wbGFuLnBkZg==,mimetype dGV4dC9wbGFpbg==';
 
         // Arrange: create a new Upload.
-        $uut = new Upload('some-key', [
-            'metadata' => $encodedMetadata,
-        ]);
+        $uut = new Upload;
+        $uut->metadata = $metadata;
 
-        // Act: use the magic metadata accessor.
+        // Act: use the metadata accessor.
         $metadata = $uut->metadata;
 
         // Assert: the metadata "attribute" is a Collection.
@@ -36,7 +35,7 @@ class UploadTest extends TestCase
     public function metadata_magic_accessor_works_without_metadata_too()
     {
         // Arrange: create a new Upload.
-        $uut = new Upload('some-key');
+        $uut = new Upload;
 
         // Act: use the magic metadata accessor.
         $metadata = $uut->metadata;
