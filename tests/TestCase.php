@@ -3,7 +3,6 @@
 namespace Theomessin\Tus\Tests;
 
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
