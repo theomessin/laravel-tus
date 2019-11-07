@@ -8,8 +8,6 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
 {
-    use DatabaseMigrations;
-
     /** @var User */
     protected $user;
 
@@ -19,6 +17,14 @@ class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Publish migration.
+        $this->artisan('vendor:publish', [
+            '--provider' => \Theomessin\Tus\ServiceProvider::class,
+        ])->run();
+
+        // Migrate the in memory database.
+        $this->artisan('migrate:fresh')->run();
 
         // Load default Laravel migrations (eg. users).
         $this->loadLaravelMigrations();
