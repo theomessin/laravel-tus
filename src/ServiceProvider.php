@@ -15,7 +15,6 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->registerGates();
-        $this->publishMigrations();
         $this->mapTusRoutes();
         $this->bootConsole();
         $this->bindTusModel();
@@ -29,14 +28,6 @@ class ServiceProvider extends BaseServiceProvider
         Gate::define('action-upload', function ($user, Upload $upload) {
             return $user->id == $upload->user_id;
         });
-    }
-
-    /**
-     * Publish the migrations for this package.
-     */
-    protected function publishMigrations()
-    {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**
@@ -61,6 +52,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishConfig();
+            $this->publishMigrations();
             $this->registerCommands();
         }
     }
@@ -73,6 +65,16 @@ class ServiceProvider extends BaseServiceProvider
         $this->publishes([
             __DIR__.'/../config/config.php' => config_path('tus.php'),
         ], 'config');
+    }
+
+    /**
+     * Publish the package migrations.
+     */
+    protected function publishMigrations()
+    {
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
+        ], 'migrations');
     }
 
     /**
