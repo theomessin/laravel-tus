@@ -2,9 +2,11 @@
 
 namespace Theomessin\Tus\Testing;
 
+use Illuminate\Support\Collection;
+use InvalidArgumentException;
 use Theomessin\Tus\Models\Upload;
 
-trait UploadingViaTus
+trait TusUploading
 {
     public function __construct()
     {
@@ -17,15 +19,29 @@ trait UploadingViaTus
         $this->contents .= 'Such is the rule of honor';
     }
 
-    /**
-     * Allows to upload some contents via Tus.
-     *
-     * @param  string  $contents  The contents to upload.
-     * @param  int|null  $chunkSize  The size of each chunk.
-     * @param  bool  $assertions  Whether to run assertions.
-     * @return  Upload  The upload object.
-     */
-    protected function uploadViaTus($contents, $metadata = [], $chunkSize = null, $assertions = false)
+    public function tusUpload($source, $metadata = [], $chunkSize = null, $assertions = false)
+    {
+        $method = (new Collection([
+            'resource' => 'tusUploadStream',
+            'string' => 'tusUploadString',
+        ]))->get(gettype($source));
+
+        if ($method === null) {
+            throw new InvalidArgumentException('Argument source is of invalid type');
+        }
+
+        return $this->$method($source, $metadata, $chunkSize, $assertions);
+    }
+
+    private function tusUploadString($string, $metadata, $chunkSize, $assertions)
+    {
+        $stream = fopen('php://temp', 'rb+');
+        fwrite($stream, $string);
+        rewind($stream);
+        return $this->tusUploadStream($stream, $metadata, $chunkSize, $assertions);
+    }
+
+    private function tusUploadStream($stream, $metadata, $chunkSize, $assertions)
     {
         // Arrange: prepare to encode metadata:
         $metadata = collect($metadata)->map(function ($v) {
@@ -35,7 +51,7 @@ trait UploadingViaTus
         })->flatten()->implode(',');
 
         // Arrange: prepare upload details.
-        $uploadLength = strlen($contents);
+        $uploadLength = fstat($stream)['size'];
         if ($chunkSize <= 0) $chunkSize = null;
         $chunkSize = $chunkSize ?? $uploadLength;
 
@@ -49,22 +65,31 @@ trait UploadingViaTus
         $response = $this->post('/tus', [], $headers);
         $location = $response->headers->get('Location');
 
-        // Act: Upload the entire contents chunk by chunk.
-        $this->chunkedUpload($location, $contents, $chunkSize, $assertions);
+        // Act: Upload the entire stream chunk by chunk.
+        $this->chunkedUpload($location, $stream, $chunkSize, $assertions);
 
         // Return the upload object.
         return Upload::withTrashed()->where('key', basename($location))->firstOrFail();
     }
 
     /**
-     * Upload contents using tus, chunk by chunk
+     * Allows to upload contents via Tus.
+     *
+     * @param  string|resource  $source  The source to upload.
+     * @param  int|null  $chunkSize  The size of each chunk.
+     * @param  bool  $assertions  Whether to run assertions.
+     * @return  Upload  The upload object.
+     */
+
+    /**
+     * Upload stream using tus, chunk by chunk
      *
      * @return  bool  Whether the complete upload was successful.
      */
-    protected function chunkedUpload($location, $contents, $chunkSize, $assertions = false, $offset = 0)
+    private function chunkedUpload($location, $stream, $chunkSize, $assertions = false, $offset = 0)
     {
-        // If contents empty, we're done!
-        if (strlen($contents) == 0) return;
+        // If stream empty, we're done!
+        if (feof($stream) == true) return;
 
         // Step 1: use HEAD to get current upload status.
         $response = $this->get($location);
@@ -76,7 +101,7 @@ trait UploadingViaTus
         }
 
         // Step 2: use PATCH to upload the next chunk.
-        $chunk = substr($contents, 0, $chunkSize);
+        $chunk = fread($stream, $chunkSize);
         $newOffset = $offset + strlen($chunk);
         $response = $this->tusPatch($location, $chunk, $offset);
 
@@ -87,8 +112,7 @@ trait UploadingViaTus
         }
 
         // Step 3: Upload the rest of the contents.
-        $remainingContents = substr($contents, $chunkSize);
-        $this->chunkedUpload($location, $remainingContents, $chunkSize, $assertions, $newOffset);
+        $this->chunkedUpload($location, $stream, $chunkSize, $assertions, $newOffset);
     }
 
     /**

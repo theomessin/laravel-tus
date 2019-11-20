@@ -5,7 +5,7 @@ namespace Theomessin\Tus\Events;
 use Illuminate\Queue\SerializesModels;
 use Theomessin\Tus\Models\Upload;
 
-class UploadFinished
+class FileUploaded
 {
     use SerializesModels;
 

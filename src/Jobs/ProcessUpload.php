@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Theomessin\Tus\Events\UploadFinished;
+use Theomessin\Tus\Events\FileUploaded;
 use Theomessin\Tus\Models\Upload;
 
 class ProcessUpload implements ShouldQueue
@@ -57,6 +57,6 @@ class ProcessUpload implements ShouldQueue
         unlink($this->upload->accumulator);
 
         // And now we're finished.
-        event(new UploadFinished($this->upload));
+        event(new FileUploaded($this->upload));
     }
 }

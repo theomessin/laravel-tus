@@ -2,19 +2,24 @@
 
 namespace Theomessin\Tus\Tests\Unit\Jobs;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Theomessin\Tus\Events\FileUploaded;
 use Theomessin\Tus\Jobs\ProcessUpload;
-use Theomessin\Tus\Testing\UploadingViaTus;
+use Theomessin\Tus\Testing\TusUploading;
 use Theomessin\Tus\Tests\TestCase;
 
 class ProcessUploadTest extends TestCase
 {
-    use UploadingViaTus;
+    use TusUploading;
 
     /** @test */
     public function job_handle_streams_completed_upload_from_accumulator_to_correct_disk_location()
     {
+        // Arrange: fake events.
+        Event::fake();
+
         // Arrange: fake queue.
         Queue::fake();
 
@@ -22,7 +27,7 @@ class ProcessUploadTest extends TestCase
         $disk = Storage::fake('local');
 
         // (Arrange) Act: Upload the entire contents, with assertions.
-        $upload = $this->uploadViaTus($this->contents, [], 0, false);
+        $upload = $this->tusUpload($this->contents, [], 0, false);
 
         // (Arrange) Assert: the uploaded file is equal to the contents.
         $this->assertEquals($this->contents, file_get_contents($upload->accumulator));
@@ -40,5 +45,8 @@ class ProcessUploadTest extends TestCase
 
         // Assert: The temporary file has been deleted.
         $this->assertFalse(file_exists($upload->accumulator));
+
+        // Assert: upload handling finished event fired.
+        Event::assertDispatched(FileUploaded::class, 1);
     }
 }

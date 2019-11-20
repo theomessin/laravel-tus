@@ -4,12 +4,12 @@ namespace Theomessin\Tus\Tests\Feature;
 
 use Illuminate\Support\Facades\Queue;
 use Theomessin\Tus\Jobs\ProcessUpload;
-use Theomessin\Tus\Testing\UploadingViaTus;
+use Theomessin\Tus\Testing\TusUploading;
 use Theomessin\Tus\Tests\TestCase;
 
 class IntegrationTest extends TestCase
 {
-    use UploadingViaTus;
+    use TusUploading;
 
     /**
      * @var string
@@ -23,7 +23,7 @@ class IntegrationTest extends TestCase
         Queue::fake();
 
         // Act: Upload the entire contents, with assertions.
-        $upload = $this->uploadViaTus($this->contents, [], 69, true);
+        $upload = $this->tusUpload($this->contents, [], 69, true);
 
         // Assert: the uploaded file is equal to the contents.
         $this->assertEquals($this->contents, file_get_contents($upload->accumulator));
@@ -38,7 +38,7 @@ class IntegrationTest extends TestCase
     public function after_final_chunk_is_uploaded_key_is_deleted()
     {
         // Act: Upload the entire contents as one chunk.
-        $upload = $this->uploadViaTus($this->contents, [], 0, false);
+        $upload = $this->tusUpload($this->contents, [], 0, false);
 
         // Assert: the upload resource is not found.
         $this->get("/tus/{$upload->key}")->assertNotFound();
