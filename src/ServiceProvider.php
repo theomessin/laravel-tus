@@ -5,6 +5,7 @@ namespace Theomessin\Tus;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Theomessin\Tus\Http\Middleware\Authenticate;
 use Theomessin\Tus\Models\Upload;
 
 class ServiceProvider extends BaseServiceProvider
@@ -36,7 +37,7 @@ class ServiceProvider extends BaseServiceProvider
     protected function mapTusRoutes()
     {
         $options = [
-            'middleware' => ['web'],
+            'middleware' => ['web', Authenticate::class],
             'prefix' => config('tus.endpoint'),
         ];
 
