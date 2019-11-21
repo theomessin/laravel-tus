@@ -64,6 +64,7 @@ trait TusUploading
         // Arrange: create the upload using the creation extension.
         $response = $this->post('/tus', [], $headers);
         $location = $response->headers->get('Location');
+        $response->assertSuccessful();
 
         // Act: Upload the entire stream chunk by chunk.
         $this->chunkedUpload($location, $stream, $chunkSize, $assertions);
