@@ -6,6 +6,9 @@ use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Theomessin\Tus\Models\Upload;
 
+/**
+ * @codeCoverageIgnore
+ */
 trait TusUploading
 {
     public function __construct()
@@ -19,6 +22,14 @@ trait TusUploading
         $this->contents .= 'Such is the rule of honor';
     }
 
+    /**
+     * Allows to upload contents via Tus.
+     *
+     * @param  string|resource  $source  The source to upload.
+     * @param  int|null  $chunkSize  The size of each chunk.
+     * @param  bool  $assertions  Whether to run assertions.
+     * @return  Upload  The upload object.
+     */
     public function tusUpload($source, $metadata = [], $chunkSize = null, $assertions = false)
     {
         $method = (new Collection([
@@ -72,15 +83,6 @@ trait TusUploading
         // Return the upload object.
         return Upload::withTrashed()->where('key', basename($location))->firstOrFail();
     }
-
-    /**
-     * Allows to upload contents via Tus.
-     *
-     * @param  string|resource  $source  The source to upload.
-     * @param  int|null  $chunkSize  The size of each chunk.
-     * @param  bool  $assertions  Whether to run assertions.
-     * @return  Upload  The upload object.
-     */
 
     /**
      * Upload stream using tus, chunk by chunk

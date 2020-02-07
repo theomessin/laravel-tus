@@ -1,0 +1,41 @@
+name: checks
+on: [push]
+
+jobs:
+  styling:
+    name: styling (php-7.4)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Set up environment
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: '7.4'
+        extension: mbstring, dom, fileinfo
+    - name: Install dependencies
+      run: composer install --no-suggest --prefer-dist --optimize-autoloader
+    - name: Check code style
+      run: ./vendor/bin/phpcs
+  testing:
+    name: testing (php-${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.2', '7.3', '7.4']
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Set up environment
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-versions }}
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+    - name: Run PHPUnit for testing and coverage
+      uses: theomessin/action-phpcov@master
+      with:
+        min_coverage: 90
+        now_project: "laravel-tus-phpcov"
+        now_token: ${{ secrets.NOW_TOKEN }}
+        phpunit: "./vendor/bin/phpunit --testdox"
